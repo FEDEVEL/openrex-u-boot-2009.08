@@ -140,7 +140,7 @@
  * Miscellaneous configurable options
  */
 #define CONFIG_SYS_LONGHELP		/* undef to save memory */
-#define CONFIG_SYS_PROMPT		"OpenRex U-Boot > "
+#define CONFIG_SYS_PROMPT		"Tiny U-Boot > "
 #define CONFIG_AUTO_COMPLETE
 #define CONFIG_SYS_CBSIZE		1024	/* Console I/O Buffer Size */
 /* Print Buffer Size */
@@ -202,8 +202,8 @@
 #ifdef CONFIG_CMD_SF
 	#define CONFIG_FSL_SF		1
 //	#define CONFIG_SPI_FLASH_IMX_M25PXX	1
-	#define CONFIG_SPI_FLASH_IMX_SST	1 //OpenRex has this FLASH
-	#define CONFIG_SPI_FLASH_CS	2	  //OpenRex FLASH is on CS2
+	#define CONFIG_SPI_FLASH_IMX_SST	1 //iMX6 Rex has this FLASH
+	#define CONFIG_SPI_FLASH_CS	0	  //iMX6 Rex FLASH is on CS2
 	#define CONFIG_IMX_ECSPI
 	#define IMX_CSPI_VER_2_3	1
 	#define MAX_SPI_BYTES		(64 * 4)
@@ -321,7 +321,7 @@
 	#define CONFIG_ENV_OFFSET       (768 * 1024)
 #elif defined(CONFIG_FSL_ENV_IN_SF)
 	#define CONFIG_ENV_IS_IN_SPI_FLASH	1
-	#define CONFIG_ENV_SPI_CS		2
+	#define CONFIG_ENV_SPI_CS		0
 	#define CONFIG_ENV_OFFSET       (768 * 1024)
 #else
 	#define CONFIG_ENV_IS_NOWHERE	1
