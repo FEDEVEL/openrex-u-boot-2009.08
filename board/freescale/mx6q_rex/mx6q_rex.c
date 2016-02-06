@@ -369,15 +369,14 @@ static void setup_uart(void)
 {
 #if defined CONFIG_MX6Q
 	/* UART1 TXD */
-	//mxc_iomux_v3_setup_pad(MX6Q_PAD_CSI0_DAT10__UART1_TXD);
-	mxc_iomux_v3_setup_pad(MX6Q_PAD_SD3_DAT7__UART1_TXD);
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_CSI0_DAT10__UART1_TXD);
 
 	/* UART1 RXD */
-	//mxc_iomux_v3_setup_pad(MX6Q_PAD_CSI0_DAT11__UART1_RXD);
-	mxc_iomux_v3_setup_pad(MX6Q_PAD_SD3_DAT6__UART1_RXD);
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_CSI0_DAT11__UART1_RXD);
 
-	//mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D20__UART1_RTS); // UART1_RTS
-	//mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D19__UART1_CTS); // UART1_CTS
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D20__UART1_RTS); // UART1_RTS
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D19__UART1_CTS); // UART1_CTS
+
 	//mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D25__UART1_DSR); // UART1_DSR
 	//mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D24__UART1_DTR); // UART1_DTR
 	//mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D23__UART1_DCD); // UART1_DCD
@@ -415,19 +414,19 @@ void setup_lvds_poweron(void)
 
 #ifdef CONFIG_I2C_MXC
 //#define I2C1_SDA_GPIO5_26_BIT_MASK  (1 << 26)
-#define I2C1_SDA_GPIO3_28_BIT_MASK  (1 << 28) //Tiny
+#define I2C1_SDA_GPIO3_28_BIT_MASK  (1 << 28) //OpenRex
 
 //#define I2C1_SCL_GPIO5_27_BIT_MASK  (1 << 27)
-#define I2C1_SCL_GPIO3_21_BIT_MASK  (1 << 21) //Tiny
+#define I2C1_SCL_GPIO3_21_BIT_MASK  (1 << 21) //OpenRex
 
 #define I2C2_SCL_GPIO4_12_BIT_MASK  (1 << 12)
 #define I2C2_SDA_GPIO4_13_BIT_MASK  (1 << 13)
 
 //#define I2C3_SCL_GPIO3_17_BIT_MASK   (1 << 17)
-#define I2C3_SCL_GPIO1_5_BIT_MASK   (1 << 5) //Tiny
+#define I2C3_SCL_GPIO1_5_BIT_MASK   (1 << 5) //OpenRex
 
 //#define I2C3_SDA_GPIO3_18_BIT_MASK   (1 << 18)
-#define I2C3_SDA_GPIO7_11_BIT_MASK   (1 << 11) //Tiny
+#define I2C3_SDA_GPIO7_11_BIT_MASK   (1 << 11) //OpenRex
 
 
 
@@ -793,7 +792,7 @@ static int setup_pmic_voltages(void)
 		*VGEN3 for camera 2.8V power supply
 		*/
 		/*increase VGEN3 from 2.5 to 2.8V*/
-		if (i2c_read(0x8, 0x6e, 1, &value, 1)) {
+		/*if (i2c_read(0x8, 0x6e, 1, &value, 1)) {
 			printf("Read VGEN3 error!\n");
 			return -1;
 		}
@@ -802,9 +801,9 @@ static int setup_pmic_voltages(void)
 		if (i2c_write(0x8, 0x6e, 1, &value, 1)) {
 			printf("Set VGEN3 error!\n");
 			return -1;
-		}
+		}*/
 		/*increase VGEN5 from 2.8 to 3V*/
-		if (i2c_read(0x8, 0x70, 1, &value, 1)) {
+		/*if (i2c_read(0x8, 0x70, 1, &value, 1)) {
 			printf("Read VGEN5 error!\n");
 			return -1;
 		}
@@ -813,7 +812,7 @@ static int setup_pmic_voltages(void)
 		if (i2c_write(0x8, 0x70, 1, &value, 1)) {
 			printf("Set VGEN5 error!\n");
 			return -1;
-		}
+		}*/
 	}
 }
 #endif
@@ -824,17 +823,17 @@ s32 spi_get_cfg(struct imx_spi_dev_t *dev)
 	switch (dev->slave.cs) {
 	case 2:
 		/* SPI-NOR */
-		// Tiny Boot SPI is mapped to ECSPI1 CS0
-		dev->base = ECSPI1_BASE_ADDR;
+		// OpenRex Boot SPI is mapped to ECSPI3 CS2
+		dev->base = ECSPI3_BASE_ADDR;
 		dev->freq = 25000000;
 		dev->ss_pol = IMX_SPI_ACTIVE_LOW;
-		dev->ss = 0;
+		dev->ss = 2;
 		dev->fifo_sz = 64 * 4;
 		dev->us_delay = 0;
 		break;
 
 	default:
-		printf("Invalid Bus ID! (For Tiny use: sf probe 3:2)\n");
+		printf("Invalid Bus ID! (For OpenRex use: sf probe 3:2)\n");
 	}
 
 	return 0;
@@ -846,30 +845,31 @@ void spi_io_init(struct imx_spi_dev_t *dev)
 
 	switch (dev->base) {
 	case ECSPI1_BASE_ADDR:
-		// Tiny Boot SPI is mapped to ECSPI1 CS0
-		/* Enable ECSPI1 clocks */
+		//!MM SPI1 signals set as GPIOs to avoid initial conflicts with mating boards
+		/* Enable ECSPI1 clocks 
 		reg = readl(CCM_BASE_ADDR + CLKCTL_CCGR1);
 		reg |= 0x03;
 		writel(reg, CCM_BASE_ADDR + CLKCTL_CCGR1);
 
 #if defined CONFIG_MX6Q		
-		/* SCLK */
+		// SCLK 
 		mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D16__ECSPI1_SCLK);
 
-		/* MISO */
+		// MISO 
 		mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D17__ECSPI1_MISO);
 
-		/* MOSI */
+		// MOSI 
 		mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_D18__ECSPI1_MOSI);
 
-		/* SS0 */
+		// SS0
 		mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_EB2__ECSPI1_SS0);
 #endif
+*/
 		break;
 	case ECSPI2_BASE_ADDR:
 		break;
 	case ECSPI3_BASE_ADDR:
-		// iMX6 Rex Boot SPI is mapped to ECSPI3 CS2
+		// OpenRex Boot SPI is mapped to ECSPI3 CS2
 		/* Enable ECSPI3 clocks */
 		reg = readl(CCM_BASE_ADDR + CLKCTL_CCGR1);
 		reg |= 0x30;
@@ -965,8 +965,8 @@ int board_eth_init(bd_t *bis)
  */
 struct fsl_esdhc_cfg usdhc_cfg[1] = {
 	//{USDHC1_BASE_ADDR, 1, 1, 1, 0},	
-	//{USDHC2_BASE_ADDR, 1, 1, 1, 0},
-	{USDHC3_BASE_ADDR, 1, 1, 1, 0},
+	{USDHC2_BASE_ADDR, 1, 1, 1, 0},
+	//{USDHC3_BASE_ADDR, 1, 1, 1, 0},
 	//{USDHC4_BASE_ADDR, 1, 1, 1, 0},	
 };
 
@@ -980,7 +980,7 @@ iomux_v3_cfg_t usdhc1_pads[] = {
 	MX6Q_PAD_SD1_DAT2__USDHC1_DAT2,
 	MX6Q_PAD_SD1_DAT3__USDHC1_DAT3,
 };*/
-/*
+
 iomux_v3_cfg_t usdhc2_pads[] = {
 	MX6Q_PAD_SD2_CLK__USDHC2_CLK,
 	MX6Q_PAD_SD2_CMD__USDHC2_CMD,
@@ -988,14 +988,13 @@ iomux_v3_cfg_t usdhc2_pads[] = {
 	MX6Q_PAD_SD2_DAT1__USDHC2_DAT1,
 	MX6Q_PAD_SD2_DAT2__USDHC2_DAT2,
 	MX6Q_PAD_SD2_DAT3__USDHC2_DAT3,
-	MX6Q_PAD_NANDF_D4__USDHC2_DAT4,		// iMX6 Rex
-	MX6Q_PAD_NANDF_D5__USDHC2_DAT5,		// iMX6 Rex
-	MX6Q_PAD_NANDF_D6__USDHC2_DAT6,		// iMX6 Rex
-	MX6Q_PAD_NANDF_D7__USDHC2_DAT7,		// iMX6 Rex
-	MX6Q_PAD_GPIO_6__USDHC2_LCTL,		// iMX6 Rex
+	//MX6Q_PAD_NANDF_D4__USDHC2_DAT4,
+	//MX6Q_PAD_NANDF_D5__USDHC2_DAT5,
+	//MX6Q_PAD_NANDF_D6__USDHC2_DAT6,
+	//MX6Q_PAD_NANDF_D7__USDHC2_DAT7,
+	MX6Q_PAD_GPIO_6__USDHC2_LCTL,
 };
-*/
-iomux_v3_cfg_t usdhc3_pads[] = {
+/*iomux_v3_cfg_t usdhc3_pads[] = {
 	MX6Q_PAD_SD3_CLK__USDHC3_CLK,
 	MX6Q_PAD_SD3_CMD__USDHC3_CMD,
 	MX6Q_PAD_SD3_DAT0__USDHC3_DAT0,
@@ -1006,7 +1005,7 @@ iomux_v3_cfg_t usdhc3_pads[] = {
 	//MX6Q_PAD_SD3_DAT5__USDHC3_DAT5,
 	//MX6Q_PAD_SD3_DAT6__USDHC3_DAT6,
 	//MX6Q_PAD_SD3_DAT7__USDHC3_DAT7,
-};
+};*/
 /*
 iomux_v3_cfg_t usdhc4_pads[] = {
 	MX6Q_PAD_SD4_CLK__USDHC4_CLK,
@@ -1080,18 +1079,17 @@ int usdhc_gpio_init(bd_t *bis)
 				sizeof(usdhc1_pads[0]));
 			break;
 		*/
-		/*
 		case 0:
 			mxc_iomux_v3_setup_multiple_pads(usdhc2_pads,
 				sizeof(usdhc2_pads) /
 				sizeof(usdhc2_pads[0]));
 			break;
-		*/
-		case 0:
+		/*case 0:
 			mxc_iomux_v3_setup_multiple_pads(usdhc3_pads,
 				sizeof(usdhc3_pads) /
 				sizeof(usdhc3_pads[0]));
 			break;
+		*/
 		/*case 3:
 			mxc_iomux_v3_setup_multiple_pads(usdhc4_pads,
 				sizeof(usdhc4_pads) /
@@ -1744,15 +1742,20 @@ int mx6_rex_board_rev_name(void)
 	u32 reg;
 	int ret;
 
-	//!RF! must be updated for Tiny
-/*
-	// iMX6 Rex: setting GPIO function of pad; disabling internal pull up
-	mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_A17__GPIO_2_21 & MUX_PAD_CTRL(~PAD_CTL_PKE)); // board variant 0
-	mxc_iomux_v3_setup_pad(MX6Q_PAD_EIM_A16__GPIO_2_22 & MUX_PAD_CTRL(~PAD_CTL_PKE)); // board variant 1
+	// OpenRex: setting GPIO function of pad; disabling internal pull up
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_DI0_PIN4__GPIO_4_20 & MUX_PAD_CTRL(~PAD_CTL_PKE)); // board variant 0
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_DISP0_DAT7__GPIO_4_28 & MUX_PAD_CTRL(~PAD_CTL_PKE)); // board variant 1
+	mxc_iomux_v3_setup_pad(MX6Q_PAD_DISP0_DAT14__GPIO_5_8 & MUX_PAD_CTRL(~PAD_CTL_PKE)); // board variant 2
 
-	ret = (reg & (1<<21)) >> 21; // board variant 0
-	ret += (reg & (1<<22)) >> 21; // board variant 1
-*/	
+	reg = readl(GPIO4_BASE_ADDR + GPIO_DR);
+
+	ret = (reg & (1<<20)) >> 20; // board variant 0
+	ret += (reg & (1<<28)) >> 27; // board variant 1
+
+	reg = readl(GPIO5_BASE_ADDR + GPIO_DR);
+
+	ret += (reg & (1<<8)) >> 6; // board variant 2
+	
 	return ret;
 }
 
@@ -1980,7 +1983,7 @@ void enet_board_init(void)
 
 int checkboard(void)
 {
-	printf("Board: %s-TINY: Variant: %d Board: 0x%x [",
+	printf("Board: %s-OpenRex: Variant: %d Board: 0x%x [",
 	mx6_chip_name(),
 	mx6_rex_board_rev_name(),
 	fsl_system_rev);
