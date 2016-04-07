@@ -201,8 +201,9 @@
  */
 #ifdef CONFIG_CMD_SF
 	#define CONFIG_FSL_SF		1
-//	#define CONFIG_SPI_FLASH_IMX_M25PXX	1
-	#define CONFIG_SPI_FLASH_IMX_SST	1 //OpenRex has this FLASH
+	#define CONFIG_SPI_FLASH_IMX_M25PXX	1 //!MM OpenRex has this FLASH
+// !MM	#define CONFIG_SPI_FLASH_IMX_SST	1
+//	#define CONFIG_SPI_FLASH_STMICRO
 	#define CONFIG_SPI_FLASH_CS	2	  //OpenRex FLASH is on CS2
 	#define CONFIG_IMX_ECSPI
 	#define IMX_CSPI_VER_2_3	1

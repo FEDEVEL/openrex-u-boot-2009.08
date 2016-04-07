@@ -126,6 +126,14 @@ static const struct stmicro_spi_flash_params stmicro_spi_flash_table[] = {
 		.nr_sectors = 64,
 		.name = "M25P128",
 	},
+	//!MM
+	{
+		.idcode1 = 0x42,
+		.page_size = 256,
+		.pages_per_sector = 1024,
+		.nr_sectors = 64,
+		.name = "SST26VF032B - X",
+	},
 };
 
 static int stmicro_wait_ready(struct spi_flash *flash, unsigned long timeout)

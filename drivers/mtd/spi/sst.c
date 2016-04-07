@@ -86,6 +86,11 @@ static const struct sst_spi_flash_params sst_spi_flash_table[] = {
 		.idcode1 = 0x04,
 		.nr_sectors = 128,
 		.name = "SST25WF040",
+	},{
+	//!MM SST26VF032B support
+		.idcode1 = 0x42,
+		.nr_sectors = 1024,
+		.name = "SST26VF032B",
 	},
 };
 

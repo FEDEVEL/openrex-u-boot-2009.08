@@ -141,6 +141,7 @@ struct spi_flash *spi_flash_probe(unsigned int bus, unsigned int cs,
 #endif
 #ifdef CONFIG_SPI_FLASH_STMICRO
 	case 0x20:
+	case 0xBF: //!MM
 		flash = spi_flash_probe_stmicro(spi, idcode);
 		break;
 #endif

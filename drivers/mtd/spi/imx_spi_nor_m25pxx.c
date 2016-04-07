@@ -36,6 +36,9 @@ static u8 g_rx_buf[256];
 #define WRITE_ENABLE(a)		spi_nor_cmd_1byte(a, OPCODE_WREN)
 #define	write_enable(a)		WRITE_ENABLE(a)
 
+#define UNLOCK_GLOBAL_PROTECTION(a)		spi_nor_cmd_1byte(a, 0x98)
+#define	unlock_global_protection(a)		UNLOCK_GLOBAL_PROTECTION(a)
+
 #define	SPI_FIFOSIZE		24
 
 struct imx_spi_flash_params {
@@ -66,6 +69,15 @@ static const struct imx_spi_flash_params imx_spi_flash_table[] = {
 		.device_size		= SZ_64K * 64,
 		.page_size		= 256,
 		.name			= "M25P32 - 4MB",
+	},
+	//!MM SST26VF032B support
+	{
+		.idcode1		= 0x26,
+		.block_size		= SZ_64K,
+		.block_count		= 64,
+		.device_size		= SZ_64K * 64,
+		.page_size		= 256,
+		.name			= "SST26VF032B - 4MB - X",
 	},
 };
 
@@ -298,7 +310,12 @@ static int _fsl_spi_write(struct spi_flash *flash, const void *buf, int len, int
 		debug("WRITEBUF: (%x) %x %x %x\n",
 		      txer[3], txer[2], txer[1], txer[0]);
 
+		//!MM debug("WRITEBUF - DATA: %x %x %x %x\n",
+		      txer[7], txer[6], txer[5], txer[4]);
+
 		wait_till_ready(flash);
+
+		unlock_global_protection(flash); //!MM SST26VF032B support
 
 		write_enable(flash);
 
@@ -444,6 +461,9 @@ static int spi_nor_flash_erase(struct spi_flash *flash, u32 offset,
 		offset += imx_sf->params->block_size;
 		len -= imx_sf->params->block_size;
 	}
+
+	WRITE_ENABLE(flash);
+	unlock_global_protection(flash); //!MM SST26VF032B support
 
 	return 0;
 }
